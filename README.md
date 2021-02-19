@@ -2,6 +2,8 @@
 
 This watch mode is based on the configuration of https://github.com/mugen-launcher/quick-versus
 
+![Video](./docs/video.gif)
+
 ## Additional properties
 
 | Name | Description |
