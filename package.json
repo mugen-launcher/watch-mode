@@ -2,7 +2,7 @@
     "name": "mugen-watch-mode",
     "author": "neolao",
     "license": "MIT",
-    "version": "0.32.1",
+    "version": "0.0.1",
     "description": "Mugen watch mode",
     "keywords": [
         "mugen",
@@ -96,8 +96,8 @@
     },
     "main": "index.js",
     "build": {
-        "appId": "com.neolao.mugen.quick-versus-launcher",
-        "productName": "quick-versus",
+        "appId": "com.neolao.mugen.watch-mode",
+        "productName": "watch-mode",
         "files": [
             "index.js",
             "index.html",

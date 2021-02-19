@@ -18,6 +18,7 @@ import getCharacterDefinition from "./character/util/getCharacterDefinition";
 const app = remote.app;
 const fs = remote.require("fs");
 const path = remote.require("path");
+const execFile = remote.require("child_process").execFile;
 const currentDirectory = getCurrentDirectory();
 
 const Wrapper = styled.main`
@@ -206,8 +207,10 @@ export default function App() {
     options.push("-p1.ai", 10);
     options.push("-p2.ai", 10);
 
-    backgroundSound.pause();
+    environment.backgroundSound.pause();
     remote.getCurrentWindow().minimize();
+    
+    console.log(environment.mugenPath, options);
     execFile(
       environment.mugenPath,
       options,
@@ -215,12 +218,12 @@ export default function App() {
         cwd: environment.currentDirectory
       },
       () => {
-        backgroundSound.play();
+        environment.backgroundSound.play();
         createRandomFight();
         remote.getCurrentWindow().restore();
       }
     );
-    console.log(environment.mugenPath, options);
+    
 
     return <BlackScreen>Fighting ...</BlackScreen>;
   };
