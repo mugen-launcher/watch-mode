@@ -193,6 +193,7 @@ export default function App() {
         state: 'fighting',
         firstCharacter: battle.firstCharacter,
         secondCharacter: battle.secondCharacter,
+        stage: battle.stage,
       });
     }, waitingScreenDuration);
 
@@ -212,14 +213,14 @@ export default function App() {
   };
 
   const displayFightScreen = () => {
-    const firstCharacterDefinition = getCharacterDefinition(battle.firstCharacter, environment.currentDirectory);
-    const secondCharacterDefinition = getCharacterDefinition(battle.secondCharacter, environment.currentDirectory);
-    const stageDefinition = getStageDefinition(battle.stage, environment.currentDirectory);
+    //const firstCharacterDefinition = getCharacterDefinition(battle.firstCharacter, environment.currentDirectory);
+    //const secondCharacterDefinition = getCharacterDefinition(battle.secondCharacter, environment.currentDirectory);
+    //const stageDefinition = getStageDefinition(battle.stage, environment.currentDirectory);
 
     const options = [];
-    options.push('-p1', firstCharacterDefinition);
-    options.push('-p2', secondCharacterDefinition);
-    options.push('-s', stageDefinition);
+    options.push('-p1', battle.firstCharacter.definition);
+    options.push('-p2', battle.secondCharacter.definition);
+    options.push('-s', battle.stage.definition);
     options.push('-rounds', 2);
     if (configuration.motif) {
       options.push('-r', configuration.motif);
