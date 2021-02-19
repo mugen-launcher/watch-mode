@@ -1,8 +1,8 @@
-# Mugen Watch Mode
+# Watch Mode for MUGEN
 
 This watch mode is based on the configuration of https://github.com/mugen-launcher/quick-versus
 
-## additional properties
+## Additional properties
 
 | Name | Description |
 | ---- | ----------- |
