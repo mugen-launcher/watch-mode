@@ -23,7 +23,11 @@ export default function useStageDefinition(stage, currentDirectory) {
     return null;
   }
 
-  const definitionPath = path.resolve(currentDirectory, "stages", stage.definition);
+  const definitionPath = path.resolve(
+    currentDirectory,
+    "stages",
+    stage.definition
+  );
   if (!fs.existsSync(definitionPath)) {
     return null;
   }

@@ -23,7 +23,11 @@ export default function useCharacterDefinition(character, currentDirectory) {
     return null;
   }
 
-  const definitionPath = path.resolve(currentDirectory, "chars", character.definition);
+  const definitionPath = path.resolve(
+    currentDirectory,
+    "chars",
+    character.definition
+  );
   if (!fs.existsSync(definitionPath)) {
     return null;
   }

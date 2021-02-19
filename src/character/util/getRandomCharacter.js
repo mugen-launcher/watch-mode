@@ -3,29 +3,29 @@ function nonRandomCharacterPredicate(character) {
 }
 
 function nonExcludedCharactersPredicate(excludedCharacters) {
-    return (character) => {
-        return !excludedCharacters.includes(character);
-    }
+  return character => {
+    return !excludedCharacters.includes(character);
+  };
 }
 
 function getSelectableCharactersFromCategory(category, excludedCharacters) {
   const selectableCharacters = [];
 
   const nonRandomCharacters = category.characters.filter(
-    nonRandomCharacterPredicate,
+    nonRandomCharacterPredicate
   );
   const availableCharacters = nonRandomCharacters.filter(
-    nonExcludedCharactersPredicate(excludedCharacters),
+    nonExcludedCharactersPredicate(excludedCharacters)
   );
   selectableCharacters.push(...availableCharacters);
 
   for (const character of availableCharacters) {
     if (Array.isArray(character.styles)) {
       const nonRandomSubCharacters = character.styles.filter(
-        nonRandomCharacterPredicate,
+        nonRandomCharacterPredicate
       );
       const availableSubCharacters = nonRandomSubCharacters.filter(
-        nonExcludedCharactersPredicate(excludedCharacters),
+        nonExcludedCharactersPredicate(excludedCharacters)
       );
       selectableCharacters.push(...availableSubCharacters);
     }
@@ -55,17 +55,20 @@ function getSelectableCharactersFromCategories(categories, excludedCharacters) {
   const nonRandomCategories = categories.filter(nonRandomCategoryPredicate);
   for (const category of nonRandomCategories) {
     selectableCharacters.push(
-      ...getSelectableCharactersFromCategory(category, excludedCharacters),
+      ...getSelectableCharactersFromCategory(category, excludedCharacters)
     );
   }
 
   return selectableCharacters;
 }
 
-export default function getRandomCharacter(categories, excludedCharacters = []) {
+export default function getRandomCharacter(
+  categories,
+  excludedCharacters = []
+) {
   const characters = getSelectableCharactersFromCategories(
     categories,
-    excludedCharacters,
+    excludedCharacters
   );
   const randomIndex = Math.floor(Math.random() * characters.length);
   return characters[randomIndex];

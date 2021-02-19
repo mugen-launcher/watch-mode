@@ -20,7 +20,11 @@ export default function useCharacterStandAnimation(character, colorIndex = 1) {
     propertyName = `stand${colorIndex}`;
   }
 
-  const definitionPath = path.resolve(environment.currentDirectory, "chars", character.definition);
+  const definitionPath = path.resolve(
+    environment.currentDirectory,
+    "chars",
+    character.definition
+  );
   const directoryPath = path.dirname(definitionPath);
   const imagePathsByPriority = [
     path.resolve(directoryPath, "images", `export_anim_${colorIndex}.gif`),
@@ -29,9 +33,19 @@ export default function useCharacterStandAnimation(character, colorIndex = 1) {
     path.resolve(directoryPath, "stand.gif")
   ];
   if (character.hasOwnProperty(propertyName)) {
-    imagePathsByPriority.unshift(path.resolve(directoryPath, character[propertyName]));
-    imagePathsByPriority.unshift(path.resolve(environment.currentDirectory, character[propertyName]));
-    imagePathsByPriority.unshift(path.resolve(environment.currentDirectory, "chars", character[propertyName]));
+    imagePathsByPriority.unshift(
+      path.resolve(directoryPath, character[propertyName])
+    );
+    imagePathsByPriority.unshift(
+      path.resolve(environment.currentDirectory, character[propertyName])
+    );
+    imagePathsByPriority.unshift(
+      path.resolve(
+        environment.currentDirectory,
+        "chars",
+        character[propertyName]
+      )
+    );
   }
 
   for (const imagePath of imagePathsByPriority) {

@@ -21,7 +21,10 @@ export default function getCharacterName(character, currentDirectory) {
     return "Unknown";
   }
 
-  const displayName = getObjectPropertyValueCaseInsensitive(info, "displayname");
+  const displayName = getObjectPropertyValueCaseInsensitive(
+    info,
+    "displayname"
+  );
   if (displayName) {
     return ini.unsafe(displayName);
   }

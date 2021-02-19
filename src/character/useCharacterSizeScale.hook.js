@@ -20,10 +20,17 @@ export default function useCharacterSizeScale(character) {
     return { x: 1, y: 1 };
   }
 
-  const definitionPath = path.resolve(environment.currentDirectory, "chars", character.definition);
+  const definitionPath = path.resolve(
+    environment.currentDirectory,
+    "chars",
+    character.definition
+  );
   const directoryPath = path.dirname(definitionPath);
 
-  const definitionFiles = getObjectPropertyValueCaseInsensitive(definition, "files");
+  const definitionFiles = getObjectPropertyValueCaseInsensitive(
+    definition,
+    "files"
+  );
   if (!definitionFiles) {
     return { x: 1, y: 1 };
   }

@@ -15,6 +15,7 @@ import getCurrentDirectory from './getCurrentDirectory';
 import getRandomCharacter from './character/util/getRandomCharacter';
 import noSound from './configuration/noSound';
 import getRandomStage from './stage/util/getRandomStage';
+import Stage from './stage/stage.view';
 
 const app = remote.app;
 const fs = remote.require('fs');
@@ -92,6 +93,7 @@ function Loop({ configuration, environment, roundCount, waitingScreenDuration, b
           <ConfigurationContext.Provider value={configuration}>
             <Wrapper>
               {customBackground}
+              <Stage stage={battle.stage} />
               <LeftSide character={battle.firstCharacter} />
               <RightSide character={battle.secondCharacter} />
               <Versus src={versusImagePath} />

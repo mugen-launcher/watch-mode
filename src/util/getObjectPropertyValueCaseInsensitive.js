@@ -1,4 +1,7 @@
-export default function getObjectPropertyValueCaseInsensitive(object, propertyName) {
+export default function getObjectPropertyValueCaseInsensitive(
+  object,
+  propertyName
+) {
   const lowerCasePropertyName = propertyName.toLowerCase();
 
   for (const key in object) {

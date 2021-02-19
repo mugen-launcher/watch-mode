@@ -7,7 +7,7 @@ const Wrapper = styled.h1`
   z-index: 130;
   white-space: nowrap;
   left: ${props => props.x};
-  bottom: 10vh;
+  bottom: 1vh;
   font-family: BadaBoom;
   font-size: 4vw;
   color: #fff;
