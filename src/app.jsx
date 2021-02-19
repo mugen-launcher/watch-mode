@@ -14,6 +14,7 @@ import versusImagePath from "./assets/versus.png";
 import getCurrentDirectory from "./getCurrentDirectory";
 import getRandomCharacter from "./character/util/getRandomCharacter";
 import getCharacterDefinition from "./character/util/getCharacterDefinition";
+import noSound from "./configuration/noSound";
 
 const app = remote.app;
 const fs = remote.require("fs");
@@ -144,6 +145,7 @@ export default function App() {
     }
   }
 
+  let backgroundSound = noSound;
   if (configuration.sound && configuration.sound.background) {
     let volume = 100;
     if (configuration.sound.volume) {
@@ -157,7 +159,7 @@ export default function App() {
       audio.loop = true;
       audio.play();
 
-      environment.backgroundSound = audio;
+      backgroundSound = audio;
     }
   }
 
@@ -207,9 +209,9 @@ export default function App() {
     options.push("-p1.ai", 10);
     options.push("-p2.ai", 10);
 
-    environment.backgroundSound.pause();
+    backgroundSound.pause();
     remote.getCurrentWindow().minimize();
-    
+
     console.log(environment.mugenPath, options);
     execFile(
       environment.mugenPath,
@@ -218,7 +220,7 @@ export default function App() {
         cwd: environment.currentDirectory
       },
       () => {
-        environment.backgroundSound.play();
+        backgroundSound.play();
         createRandomFight();
         remote.getCurrentWindow().restore();
       }
