@@ -13,10 +13,8 @@ import Requirement from './error/requirement.view';
 import versusImagePath from './assets/versus.png';
 import getCurrentDirectory from './getCurrentDirectory';
 import getRandomCharacter from './character/util/getRandomCharacter';
-import getCharacterDefinition from './character/util/getCharacterDefinition';
 import noSound from './configuration/noSound';
 import getRandomStage from './stage/util/getRandomStage';
-import getStageDefinition from './stage/util/getStageDefinition';
 
 const app = remote.app;
 const fs = remote.require('fs');
@@ -65,6 +63,101 @@ const BlackScreen = styled.div`
   align-items: center;
   justify-content: center;
 `;
+
+function Loop({ configuration, environment, roundCount, waitingScreenDuration, backgroundSound, customBackground}) {
+  const firstCharacter = getRandomCharacter(configuration.categories);
+  const secondCharacter = getRandomCharacter(configuration.categories, [
+    firstCharacter,
+  ]);
+  const [battle, setBattle] = useState({
+    state: 'waiting',
+    firstCharacter,
+    secondCharacter,
+    stage: getRandomStage(configuration.stages),
+  });
+
+  const displayWaitScreen = (firstCharacter, secondCharacter) => {
+    setTimeout(() => {
+      setBattle({
+        state: 'fighting',
+        firstCharacter: battle.firstCharacter,
+        secondCharacter: battle.secondCharacter,
+        stage: battle.stage,
+      });
+    }, waitingScreenDuration);
+
+    return (
+      <ErrorBoundary>
+        <EnvironmentContext.Provider value={environment}>
+          <ConfigurationContext.Provider value={configuration}>
+            <Wrapper>
+              {customBackground}
+              <LeftSide character={battle.firstCharacter} />
+              <RightSide character={battle.secondCharacter} />
+              <Versus src={versusImagePath} />
+            </Wrapper>
+          </ConfigurationContext.Provider>
+        </EnvironmentContext.Provider>
+      </ErrorBoundary>
+    );
+  };
+
+  const displayFightScreen = () => {
+    const options = [];
+    options.push('-p1', battle.firstCharacter.definition);
+    options.push('-p2', battle.secondCharacter.definition);
+    options.push('-s', battle.stage.definition);
+    options.push('-rounds', roundCount);
+    if (configuration.motif) {
+      options.push('-r', configuration.motif);
+    }
+    //options.push("-p1.color", 1);
+    //options.push("-p2.color", 1);
+    options.push('-p1.ai', 10);
+    options.push('-p2.ai', 10);
+
+    backgroundSound.pause();
+    //remote.getCurrentWindow().minimize();
+
+    console.log(environment.mugenPath, options);
+    execFile(
+      environment.mugenPath,
+      options,
+      {
+        cwd: environment.currentDirectory,
+      },
+      () => {
+        backgroundSound.play();
+        createRandomFight();
+        //remote.getCurrentWindow().restore();
+      },
+    );
+
+    return <BlackScreen>Fighting ...</BlackScreen>;
+  };
+
+  const createRandomFight = () => {
+    const firstCharacter = getRandomCharacter(configuration.categories);
+    const secondCharacter = getRandomCharacter(configuration.categories, [
+      firstCharacter,
+    ]);
+
+    setBattle({
+      state: 'waiting',
+      firstCharacter,
+      secondCharacter,
+      stage: getRandomStage(configuration.stages),
+    });
+  };
+
+  switch (battle.state) {
+    default:
+    case 'waiting':
+      return displayWaitScreen(battle.firstCharacter, battle.secondCharacter);
+    case 'fighting':
+      return displayFightScreen();
+  }
+}
 
 export default function App() {
   if (!currentDirectory) {
@@ -176,99 +269,19 @@ export default function App() {
     waitingScreenDuration = configuration.waitingScreenDuration;
   }
 
-  const firstCharacter = getRandomCharacter(configuration.categories);
-  const secondCharacter = getRandomCharacter(configuration.categories, [
-    firstCharacter,
-  ]);
-  const [battle, setBattle] = useState({
-    state: 'waiting',
-    firstCharacter,
-    secondCharacter,
-    stage: getRandomStage(configuration.stages),
-  });
-
-  const displayWaitScreen = (firstCharacter, secondCharacter) => {
-    setTimeout(() => {
-      setBattle({
-        state: 'fighting',
-        firstCharacter: battle.firstCharacter,
-        secondCharacter: battle.secondCharacter,
-        stage: battle.stage,
-      });
-    }, waitingScreenDuration);
-
-    return (
-      <ErrorBoundary>
-        <EnvironmentContext.Provider value={environment}>
-          <ConfigurationContext.Provider value={configuration}>
-            <Wrapper>
-              <LeftSide character={battle.firstCharacter} />
-              <RightSide character={battle.secondCharacter} />
-              <Versus src={versusImagePath} />
-            </Wrapper>
-          </ConfigurationContext.Provider>
-        </EnvironmentContext.Provider>
-      </ErrorBoundary>
-    );
-  };
-
-  const displayFightScreen = () => {
-    //const firstCharacterDefinition = getCharacterDefinition(battle.firstCharacter, environment.currentDirectory);
-    //const secondCharacterDefinition = getCharacterDefinition(battle.secondCharacter, environment.currentDirectory);
-    //const stageDefinition = getStageDefinition(battle.stage, environment.currentDirectory);
-
-    const options = [];
-    options.push('-p1', battle.firstCharacter.definition);
-    options.push('-p2', battle.secondCharacter.definition);
-    options.push('-s', battle.stage.definition);
-    options.push('-rounds', 2);
-    if (configuration.motif) {
-      options.push('-r', configuration.motif);
-    }
-    //options.push("-p1.color", 1);
-    //options.push("-p2.color", 1);
-    options.push('-p1.ai', 10);
-    options.push('-p2.ai', 10);
-
-    backgroundSound.pause();
-    remote.getCurrentWindow().minimize();
-
-    console.log(environment.mugenPath, options);
-    execFile(
-      environment.mugenPath,
-      options,
-      {
-        cwd: environment.currentDirectory,
-      },
-      () => {
-        backgroundSound.play();
-        createRandomFight();
-        remote.getCurrentWindow().restore();
-      },
-    );
-
-    return <BlackScreen>Fighting ...</BlackScreen>;
-  };
-
-  const createRandomFight = () => {
-    const firstCharacter = getRandomCharacter(configuration.categories);
-    const secondCharacter = getRandomCharacter(configuration.categories, [
-      firstCharacter,
-    ]);
-
-    setBattle({
-      state: 'waiting',
-      firstCharacter,
-      secondCharacter,
-      stage: getRandomStage(configuration.stages),
-    });
-  };
-
-  switch (battle.state) {
-    default:
-    case 'waiting':
-      return displayWaitScreen(battle.firstCharacter, battle.secondCharacter);
-    case 'fighting':
-      return displayFightScreen();
+  let roundCount = 1;
+  if (configuration.roundCount) {
+    roundCount = configuration.roundCount;
   }
+
+  return (
+    <Loop 
+      configuration={configuration} 
+      environment={environment} 
+      waitingScreenDuration={waitingScreenDuration}
+      roundCount={roundCount}
+      backgroundSound={backgroundSound}
+      customBackground={customBackground}
+    />
+  );
 }
