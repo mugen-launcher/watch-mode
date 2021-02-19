@@ -13,8 +13,10 @@ import Requirement from './error/requirement.view';
 import versusImagePath from './assets/versus.png';
 import getCurrentDirectory from './getCurrentDirectory';
 import getRandomCharacter from './character/util/getRandomCharacter';
+import getCharacterDefinition from './character/util/getCharacterDefinition';
 import noSound from './configuration/noSound';
 import getRandomStage from './stage/util/getRandomStage';
+import getStageDefinition from './stage/util/getStageDefinition';
 
 const app = remote.app;
 const fs = remote.require('fs');
@@ -210,10 +212,14 @@ export default function App() {
   };
 
   const displayFightScreen = () => {
+    const firstCharacterDefinition = getCharacterDefinition(battle.firstCharacter, environment.currentDirectory);
+    const secondCharacterDefinition = getCharacterDefinition(battle.secondCharacter, environment.currentDirectory);
+    const stageDefinition = getStageDefinition(battle.stage, environment.currentDirectory);
+
     const options = [];
-    options.push('-p1', battle.firstCharacter.definition);
-    options.push('-p2', battle.secondCharacter.definition);
-    options.push('-s', battle.stage.definition);
+    options.push('-p1', firstCharacterDefinition);
+    options.push('-p2', secondCharacterDefinition);
+    options.push('-s', stageDefinition);
     options.push('-rounds', 2);
     if (configuration.motif) {
       options.push('-r', configuration.motif);
