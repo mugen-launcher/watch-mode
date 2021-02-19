@@ -169,6 +169,11 @@ export default function App() {
     }
   }
 
+  let waitingScreenDuration = 5000;
+  if (configuration.waitingScreenDuration) {
+    waitingScreenDuration = configuration.waitingScreenDuration;
+  }
+
   const [battle, setBattle] = useState({
     state: 'waiting',
     firstCharacter: getRandomCharacter(configuration.categories),
@@ -183,7 +188,7 @@ export default function App() {
         firstCharacter: battle.firstCharacter,
         secondCharacter: battle.secondCharacter,
       });
-    }, 5000);
+    }, waitingScreenDuration);
 
     return (
       <ErrorBoundary>
