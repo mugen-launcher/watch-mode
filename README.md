@@ -1,6 +1,6 @@
 # Watch Mode for MUGEN
 
-This watch mode is based on the configuration of https://github.com/mugen-launcher/quick-versus
+This watch mode is based on the configuration of the [Quick Versus Launcher](https://github.com/mugen-launcher/quick-versus)
 
 ![Video](./docs/video.gif)
 
