@@ -62,7 +62,7 @@ function getSelectableCharactersFromCategories(categories, excludedCharacters) {
   return selectableCharacters;
 }
 
-export default function getRandomCharacter(categories, excludedCharacters) {
+export default function getRandomCharacter(categories, excludedCharacters = []) {
   const characters = getSelectableCharactersFromCategories(
     categories,
     excludedCharacters,
