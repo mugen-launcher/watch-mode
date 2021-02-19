@@ -174,10 +174,14 @@ export default function App() {
     waitingScreenDuration = configuration.waitingScreenDuration;
   }
 
+  const firstCharacter = getRandomCharacter(configuration.categories);
+  const secondCharacter = getRandomCharacter(configuration.categories, [
+    firstCharacter,
+  ]);
   const [battle, setBattle] = useState({
     state: 'waiting',
-    firstCharacter: getRandomCharacter(configuration.categories),
-    secondCharacter: getRandomCharacter(configuration.categories),
+    firstCharacter,
+    secondCharacter,
     stage: getRandomCharacter(configuration.stages),
   });
 
@@ -209,7 +213,7 @@ export default function App() {
     const options = [];
     options.push('-p1', battle.firstCharacter.definition);
     options.push('-p2', battle.secondCharacter.definition);
-    options.push("-s", battle.stage.definition);
+    options.push('-s', battle.stage.definition);
     options.push('-rounds', 2);
     if (configuration.motif) {
       options.push('-r', configuration.motif);
@@ -240,10 +244,15 @@ export default function App() {
   };
 
   const createRandomFight = () => {
+    const firstCharacter = getRandomCharacter(configuration.categories);
+    const secondCharacter = getRandomCharacter(configuration.categories, [
+      firstCharacter,
+    ]);
+
     setBattle({
       state: 'waiting',
-      firstCharacter: getRandomCharacter(configuration.categories),
-      secondCharacter: getRandomCharacter(configuration.categories),
+      firstCharacter,
+      secondCharacter,
       stage: getRandomStage(configuration.stages),
     });
   };
