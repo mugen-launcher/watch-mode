@@ -8,5 +8,5 @@ This watch mode is based on the configuration of https://github.com/mugen-launch
 
 | Name | Description |
 | ---- | ----------- |
-| waitingScreenDuration | Duration if the waiting screen before the fight in milliseconds (default: `5000`) |
+| waitingScreenDuration | Duration of the waiting screen before the fight in milliseconds (default: `5000`) |
 | roundCount | Round count (default: `1`) |
