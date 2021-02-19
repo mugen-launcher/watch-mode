@@ -182,7 +182,7 @@ export default function App() {
     state: 'waiting',
     firstCharacter,
     secondCharacter,
-    stage: getRandomCharacter(configuration.stages),
+    stage: getRandomStage(configuration.stages),
   });
 
   const displayWaitScreen = (firstCharacter, secondCharacter) => {
