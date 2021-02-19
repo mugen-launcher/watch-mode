@@ -1,25 +1,25 @@
-import React, { useState } from "react";
-import { remote } from "electron";
-import styled from "styled-components";
-import isDev from "electron-is-dev";
-import configYaml from "config-yaml";
-import ConfigurationContext from "./configuration/configuration.context";
-import EnvironmentContext from "./configuration/environment.context";
-import LeftSide from "./side/leftSide.view";
-import RightSide from "./side/rightSide.view";
-import ErrorBoundary from "./error/errorBoundary.view";
-import FatalError from "./error/fatalError.view";
-import Requirement from "./error/requirement.view";
-import versusImagePath from "./assets/versus.png";
-import getCurrentDirectory from "./getCurrentDirectory";
-import getRandomCharacter from "./character/util/getRandomCharacter";
-import getCharacterDefinition from "./character/util/getCharacterDefinition";
-import noSound from "./configuration/noSound";
+import React, {useState} from 'react';
+import {remote} from 'electron';
+import styled from 'styled-components';
+import isDev from 'electron-is-dev';
+import configYaml from 'config-yaml';
+import ConfigurationContext from './configuration/configuration.context';
+import EnvironmentContext from './configuration/environment.context';
+import LeftSide from './side/leftSide.view';
+import RightSide from './side/rightSide.view';
+import ErrorBoundary from './error/errorBoundary.view';
+import FatalError from './error/fatalError.view';
+import Requirement from './error/requirement.view';
+import versusImagePath from './assets/versus.png';
+import getCurrentDirectory from './getCurrentDirectory';
+import getRandomCharacter from './character/util/getRandomCharacter';
+import noSound from './configuration/noSound';
+import getRandomStage from './stage/util/getRandomStage';
 
 const app = remote.app;
-const fs = remote.require("fs");
-const path = remote.require("path");
-const execFile = remote.require("child_process").execFile;
+const fs = remote.require('fs');
+const path = remote.require('path');
+const execFile = remote.require('child_process').execFile;
 const currentDirectory = getCurrentDirectory();
 
 const Wrapper = styled.main`
@@ -73,8 +73,8 @@ export default function App() {
     );
   }
 
-  const jsonFilePath = path.resolve(currentDirectory, "quick-versus.json");
-  const yamlFilePath = path.resolve(currentDirectory, "quick-versus.yml");
+  const jsonFilePath = path.resolve(currentDirectory, 'quick-versus.json');
+  const yamlFilePath = path.resolve(currentDirectory, 'quick-versus.yml');
   if (!fs.existsSync(jsonFilePath) && !fs.existsSync(yamlFilePath)) {
     return (
       <Requirement>
@@ -86,7 +86,7 @@ export default function App() {
     );
   }
 
-  const mugenPath = path.resolve(currentDirectory, "mugen.exe");
+  const mugenPath = path.resolve(currentDirectory, 'mugen.exe');
   if (!fs.existsSync(mugenPath)) {
     return (
       <Requirement>
@@ -134,12 +134,15 @@ export default function App() {
     currentDirectory,
     mugenPath,
     configurationFilePath,
-    isDev
+    isDev,
   };
 
   let customBackground;
   if (configuration.background) {
-    const imagePath = path.resolve(environment.currentDirectory, configuration.background);
+    const imagePath = path.resolve(
+      environment.currentDirectory,
+      configuration.background,
+    );
     if (fs.existsSync(imagePath)) {
       customBackground = <CustomBackground src={imagePath} />;
     }
@@ -152,7 +155,10 @@ export default function App() {
       volume = configuration.sound.volume;
     }
 
-    const soundPath = path.resolve(environment.currentDirectory, configuration.sound.background);
+    const soundPath = path.resolve(
+      environment.currentDirectory,
+      configuration.sound.background,
+    );
     if (fs.existsSync(soundPath)) {
       const audio = new Audio(soundPath);
       audio.volume = volume / 100;
@@ -164,29 +170,30 @@ export default function App() {
   }
 
   const [battle, setBattle] = useState({
-    state: "waiting",
+    state: 'waiting',
     firstCharacter: getRandomCharacter(configuration.categories),
     secondCharacter: getRandomCharacter(configuration.categories),
+    stage: getRandomCharacter(configuration.stages),
   });
 
   const displayWaitScreen = (firstCharacter, secondCharacter) => {
     setTimeout(() => {
       setBattle({
-        state: "fighting",
+        state: 'fighting',
         firstCharacter: battle.firstCharacter,
         secondCharacter: battle.secondCharacter,
-      })
+      });
     }, 5000);
 
     return (
       <ErrorBoundary>
         <EnvironmentContext.Provider value={environment}>
           <ConfigurationContext.Provider value={configuration}>
-              <Wrapper>
-                <LeftSide character={battle.firstCharacter} />
-                <RightSide character={battle.secondCharacter} />
-                <Versus src={versusImagePath} />
-              </Wrapper>
+            <Wrapper>
+              <LeftSide character={battle.firstCharacter} />
+              <RightSide character={battle.secondCharacter} />
+              <Versus src={versusImagePath} />
+            </Wrapper>
           </ConfigurationContext.Provider>
         </EnvironmentContext.Provider>
       </ErrorBoundary>
@@ -194,20 +201,18 @@ export default function App() {
   };
 
   const displayFightScreen = () => {
-    const firstCharacterDefinition = getCharacterDefinition(battle.firstCharacter, environment.currentDirectory);
-    const secondCharacterDefinition = getCharacterDefinition(battle.secondCharacter, environment.currentDirectory);
     const options = [];
-    options.push("-p1", firstCharacterDefinition);
-    options.push("-p2", secondCharacterDefinition);
-    //options.push("-s", stageDefinition);
-    options.push("-rounds", 2);
+    options.push('-p1', battle.firstCharacter.definition);
+    options.push('-p2', battle.secondCharacter.definition);
+    options.push("-s", battle.stage.definition);
+    options.push('-rounds', 2);
     if (configuration.motif) {
-      options.push("-r", configuration.motif);
+      options.push('-r', configuration.motif);
     }
     //options.push("-p1.color", 1);
     //options.push("-p2.color", 1);
-    options.push("-p1.ai", 10);
-    options.push("-p2.ai", 10);
+    options.push('-p1.ai', 10);
+    options.push('-p2.ai', 10);
 
     backgroundSound.pause();
     remote.getCurrentWindow().minimize();
@@ -217,32 +222,32 @@ export default function App() {
       environment.mugenPath,
       options,
       {
-        cwd: environment.currentDirectory
+        cwd: environment.currentDirectory,
       },
       () => {
         backgroundSound.play();
         createRandomFight();
         remote.getCurrentWindow().restore();
-      }
+      },
     );
-    
 
     return <BlackScreen>Fighting ...</BlackScreen>;
   };
 
   const createRandomFight = () => {
     setBattle({
-      state: "waiting",
+      state: 'waiting',
       firstCharacter: getRandomCharacter(configuration.categories),
       secondCharacter: getRandomCharacter(configuration.categories),
-    })
+      stage: getRandomStage(configuration.stages),
+    });
   };
 
   switch (battle.state) {
     default:
-    case "waiting":
+    case 'waiting':
       return displayWaitScreen(battle.firstCharacter, battle.secondCharacter);
-    case "fighting":
+    case 'fighting':
       return displayFightScreen();
   }
 }
