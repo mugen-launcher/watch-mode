@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { remote } from "electron";
 import styled from "styled-components";
 import isDev from "electron-is-dev";
@@ -7,12 +7,13 @@ import ConfigurationContext from "./configuration/configuration.context";
 import EnvironmentContext from "./configuration/environment.context";
 import LeftSide from "./side/leftSide.view";
 import RightSide from "./side/rightSide.view";
-import Fight from "./fight/fight.presenter";
 import ErrorBoundary from "./error/errorBoundary.view";
 import FatalError from "./error/fatalError.view";
 import Requirement from "./error/requirement.view";
 import versusImagePath from "./assets/versus.png";
 import getCurrentDirectory from "./getCurrentDirectory";
+import getRandomCharacter from "./character/util/getRandomCharacter";
+import getCharacterDefinition from "./character/util/getCharacterDefinition";
 
 const app = remote.app;
 const fs = remote.require("fs");
@@ -45,6 +46,20 @@ const Versus = styled.img`
   bottom: 0;
   height: 30vh;
   transform: translateX(-50%);
+`;
+const BlackScreen = styled.div`
+  position: absolute;
+  z-index: 200;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: black;
+  color: white;
+  font-size: 12vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 export default function App() {
@@ -145,18 +160,84 @@ export default function App() {
     }
   }
 
-  return (
-    <ErrorBoundary>
-      <EnvironmentContext.Provider value={environment}>
-        <ConfigurationContext.Provider value={configuration}>
-            <Wrapper>
-              <LeftSide />
-              <RightSide />
-              <Versus src={versusImagePath} />
-              <Fight />
-            </Wrapper>
-        </ConfigurationContext.Provider>
-      </EnvironmentContext.Provider>
-    </ErrorBoundary>
-  );
+  const [battle, setBattle] = useState({
+    state: "waiting",
+    firstCharacter: getRandomCharacter(configuration.categories),
+    secondCharacter: getRandomCharacter(configuration.categories),
+  });
+
+  const displayWaitScreen = (firstCharacter, secondCharacter) => {
+    setTimeout(() => {
+      setBattle({
+        state: "fighting",
+        firstCharacter: battle.firstCharacter,
+        secondCharacter: battle.secondCharacter,
+      })
+    }, 5000);
+
+    return (
+      <ErrorBoundary>
+        <EnvironmentContext.Provider value={environment}>
+          <ConfigurationContext.Provider value={configuration}>
+              <Wrapper>
+                <LeftSide character={battle.firstCharacter} />
+                <RightSide character={battle.secondCharacter} />
+                <Versus src={versusImagePath} />
+              </Wrapper>
+          </ConfigurationContext.Provider>
+        </EnvironmentContext.Provider>
+      </ErrorBoundary>
+    );
+  };
+
+  const displayFightScreen = () => {
+    const firstCharacterDefinition = getCharacterDefinition(battle.firstCharacter, environment.currentDirectory);
+    const secondCharacterDefinition = getCharacterDefinition(battle.secondCharacter, environment.currentDirectory);
+    const options = [];
+    options.push("-p1", firstCharacterDefinition);
+    options.push("-p2", secondCharacterDefinition);
+    //options.push("-s", stageDefinition);
+    options.push("-rounds", 2);
+    if (configuration.motif) {
+      options.push("-r", configuration.motif);
+    }
+    //options.push("-p1.color", 1);
+    //options.push("-p2.color", 1);
+    options.push("-p1.ai", 10);
+    options.push("-p2.ai", 10);
+
+    backgroundSound.pause();
+    remote.getCurrentWindow().minimize();
+    execFile(
+      environment.mugenPath,
+      options,
+      {
+        cwd: environment.currentDirectory
+      },
+      () => {
+        backgroundSound.play();
+        createRandomFight();
+        remote.getCurrentWindow().restore();
+      }
+    );
+    console.log(environment.mugenPath, options);
+
+    return <BlackScreen>Fighting ...</BlackScreen>;
+  };
+
+  const createRandomFight = () => {
+    setBattle({
+      state: "waiting",
+      firstCharacter: getRandomCharacter(configuration.categories),
+      secondCharacter: getRandomCharacter(configuration.categories),
+    })
+  };
+
+  switch (battle.state) {
+    default:
+    case "waiting":
+      return displayWaitScreen(battle.firstCharacter, battle.secondCharacter);
+    case "fighting":
+      return displayFightScreen();
+  }
 }
